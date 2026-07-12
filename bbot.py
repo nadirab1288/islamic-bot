@@ -406,13 +406,39 @@ async def daily_task():
             await asyncio.sleep(30)
 
 # ==========================================
-# 6. ЗАПУСК
+# 6. ВЕБ-СЕРВЕР ДЛЯ RENDER
+# ==========================================
+from aiohttp import web
+
+async def handle_ping(request):
+    """Обработчик для UptimeRobot"""
+    return web.Response(text="Bot is running!")
+
+async def start_web_server():
+    """Запуск простого HTTP сервера"""
+    app = web.Application()
+    app.router.add_get('/', handle_ping)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 8080))
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    logging.info(f"✅ Web server started on port {port}")
+
+# ==========================================
+# 7. ЗАПУСК
 # ==========================================
 async def main():
-    asyncio.create_task(daily_task())
+    # Сначала запускаем веб-сервер (нужен для Render)
+    await start_web_server()
+    # Потом фоновые задачи
+    asyncio.create_task(daily_reminder_task())
+    # И наконец бота
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    try: asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit): logging.info("Stop")
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("Бот остановлен.")
