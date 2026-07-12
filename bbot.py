@@ -14,7 +14,7 @@ from aiogram.enums import ParseMode
 # ==========================================
 # 1. КОНФИГУРАЦИЯ
 # ==========================================
-API_TOKEN = "8655013275:AAF_FNcJ-GmhzLFXj4NvcN1GGj0q2ZG5hXY"
+API_TOKEN = "8655013275:AAGGb7kmBoavrpA2-pmfD5rvgIlAxbO8h_Q"
 CHANNEL_LINK = '<a href="https://t.me/salyaf64">@salyaf64</a>'
 
 bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
