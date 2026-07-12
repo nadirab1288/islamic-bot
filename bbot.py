@@ -481,8 +481,6 @@ async def cmd_start(m: types.Message):
         "/quiz — викторина (25 вопросов)\n"
         "Цифра 1-50 — конкретное напоминание\n\n"
         "Ежедневно в 08:00 присылаю контент.\n\n"
-        f"Рекомендуем:\n"
-        f"Канал {CHANNEL_LINK} — Коран, хадисы, лекции, викторины!"
     )
     await m.answer(txt, disable_web_page_preview=False)
 
@@ -719,15 +717,23 @@ async def quiz_ans(cb: types.CallbackQuery):
 
 @dp.callback_query(F.data == "next_q")
 async def quiz_next(cb: types.CallbackQuery):
+    try:
+        await cb.message.delete()
+    except:
+        pass
     await send_quiz(bot, cb.message.chat.id, cb.from_user.id)
     await cb.answer()
 
 @dp.callback_query(F.data == "reset_q")
 async def quiz_reset(cb: types.CallbackQuery):
     d = load_json("quiz", {})
-    if str(cb.from_user.id) in d: 
+    if str(cb.from_user.id) in d:
         del d[str(cb.from_user.id)]
     save_json("quiz", d)
+    try:
+        await cb.message.delete()
+    except:
+        pass
     await send_quiz(bot, cb.message.chat.id, cb.from_user.id)
     await cb.answer()
 
