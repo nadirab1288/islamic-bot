@@ -466,8 +466,9 @@ async def cmd_start(m: types.Message):
         users.append(uid)
         save_json("users", users)
     txt = (
-        "Ассаляму алейкум!\n\n"
-        "Я бот для напоминаний о важном.\n\n"
+        "﷽"
+        "Ассаляму алейкум!🌙\n\n"
+        "Я бот для напоминаний о важном.📿\n\n"
         "Команды:\n"
         "/further — следующее напоминание по очереди\n"
         "/shuffle — случайное напоминание\n"
@@ -480,7 +481,7 @@ async def cmd_start(m: types.Message):
         "/daily — аят или хадис дня\n"
         "/quiz — викторина (25 вопросов)\n"
         "Цифра 1-50 — конкретное напоминание\n\n"
-        "Ежедневно в 08:00 присылаю контент.\n\n"
+        "Ежедневно в 08:00 присылаю контент. ⋆.˚ ☾⭒.˚\n\n"
     )
     await m.answer(txt, disable_web_page_preview=False)
 
