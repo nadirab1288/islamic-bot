@@ -3,7 +3,7 @@ import random
 import json
 import os
 import logging
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone, timedelta
 
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
@@ -28,6 +28,13 @@ FILES = {
     "quiz": "quiz_progress.json",
     "prayer": "prayer_tracker.json"
 }
+
+# ЧАСОВОЙ ПОЯС (UTC+4 для Саратова)
+def get_local_date():
+    """Возвращает текущую дату в часовом поясе UTC+4"""
+    tz = timezone(timedelta(hours=4))  # UTC+4 для Саратова
+    return datetime.now(tz).date()
+    
 # БАЗА ДАННЫХ НАПОМИНАНИЙ
 REMINDERS = [
     "Воистину, религией перед Аллахом является ислам. (Сура Али Имран, 3:19)",
@@ -417,8 +424,8 @@ def save_quiz_seen(uid, seen):
 
 # ТРЕКЕР НАМАЗОВ
 def get_prayer_status(uid):
-    today = date.today().isoformat()
-    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    today = get_local_date().isoformat()
+    yesterday = (get_local_date() - timedelta(days=1)).isoformat()
     data = load_json("prayer", {})
     user_data = data.get(str(uid), {})
     
@@ -607,7 +614,7 @@ async def cmd_prayer(m: types.Message):
         [InlineKeyboardButton(text="Меню", callback_data="back")]
     ])
     
-    today = date.today().strftime("%d.%m.%Y")
+    today = get_local_date().strftime("%d.%m.%Y")
     completed = sum([status['fajr'], status['dhuhr'], status['asr'], status['maghrib'], status['isha']])
     streak = status.get("streak", 0)
     streak_text = f"🔥 Серия: {streak} дн." if streak > 0 else "🔥 Серия: 0 дн."
@@ -656,7 +663,7 @@ async def prayer_callback(cb: types.CallbackQuery):
     try:
         text_msg = (
             f" <b>Трекер намазов</b>\n"
-            f"Дата: {date.today().strftime('%d.%m.%Y')}\n"
+            f"Дата: {get_local_date().strftime('%d.%m.%Y')}\n"
             f"Выполнено: {completed}/5\n"
             f"{streak_text}{congrats}\n\n"
             f"Нажми на намаз, чтобы отметить:"
