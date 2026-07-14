@@ -444,13 +444,12 @@ def toggle_prayer(uid, prayer_name):
     return user_data[prayer_name]
 
 # Клавиатуры
-# Клавиатуры
 MAIN_KB = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text="📖 /further"), KeyboardButton(text="🎲 /shuffle")],
-    [KeyboardButton(text="🤲 /dua"), KeyboardButton(text="🕌 /names")],
-    [KeyboardButton(text="📚 /hadith40"), KeyboardButton(text="📝 /prayer")],
-    [KeyboardButton(text="📖 /quran_duas"), KeyboardButton(text="🎯 /quiz")],
-    [KeyboardButton(text="📅 /daily"), KeyboardButton(text="📊 /status")]
+    [KeyboardButton(text=" Следующее"), KeyboardButton(text="🎲 Случайное")],
+    [KeyboardButton(text="🤲 Дуа"), KeyboardButton(text=" 99 имён")],
+    [KeyboardButton(text="📚 40 хадисов"), KeyboardButton(text="📝 Трекер")],
+    [KeyboardButton(text=" Дуа Коран"), KeyboardButton(text=" Викторина")],
+    [KeyboardButton(text="📅 Аят дня"), KeyboardButton(text="📊 Статус")]
 ], resize_keyboard=True)
 
 BACK_BTN = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Меню", callback_data="back")]])
