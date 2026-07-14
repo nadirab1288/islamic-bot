@@ -445,10 +445,10 @@ def toggle_prayer(uid, prayer_name):
 
 # Клавиатуры
 MAIN_KB = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text=" Следующее"), KeyboardButton(text="🎲 Случайное")],
-    [KeyboardButton(text="🤲 Дуа"), KeyboardButton(text=" 99 имён")],
+    [KeyboardButton(text="➡️ Следующее"), KeyboardButton(text="🎲 Случайное")],
+    [KeyboardButton(text="🤲 Дуа"), KeyboardButton(text="🕌 99 имён")],
     [KeyboardButton(text="📚 40 хадисов"), KeyboardButton(text="📝 Трекер")],
-    [KeyboardButton(text=" Дуа Коран"), KeyboardButton(text=" Викторина")],
+    [KeyboardButton(text="📖 Дуа Коран"), KeyboardButton(text="🎯 Викторина")],
     [KeyboardButton(text="📅 Аят дня"), KeyboardButton(text="📊 Статус")]
 ], resize_keyboard=True)
 
@@ -751,7 +751,7 @@ async def back_text(m: types.Message):
     await m.answer("Главное меню:", reply_markup=MAIN_KB)
     
 # --- ОБРАБОТЧИКИ ДЛЯ РУССКИХ КНОПОК МЕНЮ ---
-@dp.message(F.text == "📖 Следующее")
+@dp.message(F.text == "➡️ Следующее")
 async def btn_further(m: types.Message):
     await m.answer(get_next_reminder())
 
