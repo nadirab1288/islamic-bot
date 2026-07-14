@@ -749,7 +749,69 @@ async def go_back(cb: types.CallbackQuery):
 @dp.message(F.text == "Меню")
 async def back_text(m: types.Message):
     await m.answer("Главное меню:", reply_markup=MAIN_KB)
+    
+# --- ОБРАБОТЧИКИ ДЛЯ РУССКИХ КНОПОК МЕНЮ ---
+@dp.message(F.text == "📖 Следующее")
+async def btn_further(m: types.Message):
+    await m.answer(get_next_reminder())
 
+@dp.message(F.text == "🎲 Случайное")
+async def btn_shuffle(m: types.Message):
+    await m.answer(random.choice(REMINDERS))
+
+@dp.message(F.text == "📊 Статус")
+async def btn_status(m: types.Message):
+    idx = load_json("counter", {"index": 0}).get("index", 0)
+    await m.answer(f"Напоминание {idx+1} из {len(REMINDERS)}.\n\nСледующее:\n{REMINDERS[idx]}")
+
+@dp.message(F.text == "📅 Аят дня")
+async def btn_daily(m: types.Message):
+    try:
+        c = get_daily_content()
+        await m.answer(f"{c['title']}\n\n{c['text']}")
+    except Exception as e:
+        await m.answer("Произошла ошибка при получении контента дня.")
+
+@dp.message(F.text == "🤲 Дуа")
+async def btn_dua(m: types.Message):
+    kb = ReplyKeyboardMarkup(keyboard=[
+        [KeyboardButton(text=k) for k in list(DUAS.keys())[i:i+2]]
+        for i in range(0, len(DUAS), 2)
+    ] + [[KeyboardButton(text="Меню")]], resize_keyboard=True)
+    await m.answer("Выбери ситуацию:", reply_markup=kb)
+
+@dp.message(F.text == "🕌 99 имён")
+async def btn_names(m: types.Message):
+    kb = ReplyKeyboardMarkup(keyboard=[
+        [KeyboardButton(text=k) for k in list(ALLAH_NAMES.keys())[i:i+1]]
+        for i in range(0, len(ALLAH_NAMES), 1)
+    ] + [[KeyboardButton(text="Меню")]], resize_keyboard=True)
+    await m.answer("99 имён Аллаха:\n\nВыбери имя:", reply_markup=kb)
+
+@dp.message(F.text == "📚 40 хадисов")
+async def btn_hadith40(m: types.Message):
+    kb = ReplyKeyboardMarkup(keyboard=[
+        [KeyboardButton(text=k) for k in list(NAWAWI_HADITHS.keys())[i:i+1]]
+        for i in range(0, len(NAWAWI_HADITHS), 1)
+    ] + [[KeyboardButton(text="Меню")]], resize_keyboard=True)
+    await m.answer("40 хадисов имама ан-Навави:\n\nВыбери хадис:", reply_markup=kb)
+
+@dp.message(F.text == "📝 Трекер")
+async def btn_prayer(m: types.Message):
+    await cmd_prayer(m)
+
+@dp.message(F.text == "📖 Дуа Коран")
+async def btn_quran_duas(m: types.Message):
+    kb = ReplyKeyboardMarkup(keyboard=[
+        [KeyboardButton(text=k) for k in list(QURAN_DUAS.keys())[i:i+1]]
+        for i in range(0, len(QURAN_DUAS), 1)
+    ] + [[KeyboardButton(text="Меню")]], resize_keyboard=True)
+    await m.answer("Дуа пророков из Корана:\n\nВыбери дуа:", reply_markup=kb)
+
+@dp.message(F.text == "🎯 Викторина")
+async def btn_quiz(m: types.Message):
+    await quiz_start(m)
+    
 @dp.message(F.text.regexp(r'^\d+$'))
 async def num_handler(m: types.Message):
     n = int(m.text)
