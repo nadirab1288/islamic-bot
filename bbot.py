@@ -630,46 +630,38 @@ async def prayer_callback(cb: types.CallbackQuery):
     toggle_prayer(uid, prayer_name)
     status = get_prayer_status(uid)
     
+    # Создаем кнопки
+    fajr_emoji = "✅" if status['fajr'] else "⬜"
+    dhuhr_emoji = "✅" if status['dhuhr'] else "⬜"
+    asr_emoji = "✅" if status['asr'] else "⬜"
+    maghrib_emoji = "✅" if status['maghrib'] else "⬜"
+    isha_emoji = "✅" if status['isha'] else "⬜"
+    
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['fajr'] else '⬜'} Фаджр",
-            callback_data="prayer_fajr"
-        )],
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['dhuhr'] else '⬜'} Зухр",
-            callback_data="prayer_dhuhr"
-        )],
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['asr'] else '⬜'} Аср",
-            callback_data="prayer_asr"
-        )],
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['maghrib'] else '⬜'} Магриб",
-            callback_data="prayer_maghrib"
-        )],
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['isha'] else '⬜'} Иша",
-            callback_data="prayer_isha"
-        )],
+        [InlineKeyboardButton(text=f"{fajr_emoji} Фаджр", callback_data="prayer_fajr")],
+        [InlineKeyboardButton(text=f"{dhuhr_emoji} Зухр", callback_data="prayer_dhuhr")],
+        [InlineKeyboardButton(text=f"{asr_emoji} Аср", callback_data="prayer_asr")],
+        [InlineKeyboardButton(text=f"{maghrib_emoji} Магриб", callback_data="prayer_maghrib")],
+        [InlineKeyboardButton(text=f"{isha_emoji} Иша", callback_data="prayer_isha")],
         [InlineKeyboardButton(text="Меню", callback_data="back")]
     ])
     
     completed = sum([status['fajr'], status['dhuhr'], status['asr'], status['maghrib'], status['isha']])
     streak = status.get("streak", 0)
-    streak_text = f"🔥 Серия: {streak} дн." if streak > 0 else "🔥 Серия: 0 дн."
+    streak_text = f"🔥 Серия: {streak} дн." if streak > 0 else " Серия: 0 дн."
     
     # Поздравление при выполнении всех 5 намазов
-    congrats = "\n\n🎉 <b>МашаАллах! Все 5 намазов выполнены!</b>" if completed == 5 else ""
+    congrats = "\n\n <b>МашаАллах! Все 5 намазов выполнены!</b>" if completed == 5 else ""
     
     try:
-        await cb.message.edit_text(
-            f"📅 <b>Трекер намазов</b>\n"
+        text_msg = (
+            f" <b>Трекер намазов</b>\n"
             f"Дата: {date.today().strftime('%d.%m.%Y')}\n"
             f"Выполнено: {completed}/5\n"
             f"{streak_text}{congrats}\n\n"
-            f"Нажми на намаз, чтобы отметить:",
-            reply_markup=keyboard
+            f"Нажми на намаз, чтобы отметить:"
         )
+        await cb.message.edit_text(text_msg, reply_markup=keyboard)
         await cb.answer()
     except:
         pass
