@@ -3,7 +3,7 @@ import random
 import json
 import os
 import logging
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
@@ -418,30 +418,43 @@ def save_quiz_seen(uid, seen):
 # ТРЕКЕР НАМАЗОВ
 def get_prayer_status(uid):
     today = date.today().isoformat()
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
     data = load_json("prayer", {})
     user_data = data.get(str(uid), {})
     
+    # Если дата не сегодняшняя, проверяем вчерашний день и сбрасываем
     if user_data.get("date") != today:
+        # Проверяем, был ли вчерашний день полностью выполнен
+        if user_data.get("date") == yesterday:
+            was_full = all([
+                user_data.get("fajr", False),
+                user_data.get("dhuhr", False),
+                user_data.get("asr", False),
+                user_data.get("maghrib", False),
+                user_data.get("isha", False)
+            ])
+            if was_full:
+                user_data["streak"] = user_data.get("streak", 0) + 1
+            else:
+                user_data["streak"] = 0
+        else:
+            # Если пропустили больше одного дня, серия сбрасывается
+            user_data["streak"] = 0
+        
+        # Сбрасываем намазы на сегодня, но сохраняем серию
         user_data = {
             "date": today,
             "fajr": False,
             "dhuhr": False,
             "asr": False,
             "maghrib": False,
-            "isha": False
+            "isha": False,
+            "streak": user_data.get("streak", 0)
         }
         data[str(uid)] = user_data
         save_json("prayer", data)
     
     return user_data
-
-def toggle_prayer(uid, prayer_name):
-    data = load_json("prayer", {})
-    user_data = get_prayer_status(uid)
-    user_data[prayer_name] = not user_data[prayer_name]
-    data[str(uid)] = user_data
-    save_json("prayer", data)
-    return user_data[prayer_name]
 
 # Клавиатуры
 MAIN_KB = ReplyKeyboardMarkup(keyboard=[
@@ -572,23 +585,23 @@ async def cmd_prayer(m: types.Message):
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
-            text=f"{'✅' if status['fajr'] else ''} Фаджр",
+            text=f"{'✅' if status['fajr'] else '⬜'} Фаджр",
             callback_data="prayer_fajr"
         )],
         [InlineKeyboardButton(
-            text=f"{'✅' if status['dhuhr'] else ''} Зухр",
+            text=f"{'✅' if status['dhuhr'] else '⬜'} Зухр",
             callback_data="prayer_dhuhr"
         )],
         [InlineKeyboardButton(
-            text=f"{'✅' if status['asr'] else ''} Аср",
+            text=f"{'✅' if status['asr'] else '⬜'} Аср",
             callback_data="prayer_asr"
         )],
         [InlineKeyboardButton(
-            text=f"{'✅' if status['maghrib'] else ''} Магриб",
+            text=f"{'✅' if status['maghrib'] else '⬜'} Магриб",
             callback_data="prayer_maghrib"
         )],
         [InlineKeyboardButton(
-            text=f"{'✅' if status['isha'] else ''} Иша",
+            text=f"{'✅' if status['isha'] else '⬜'} Иша",
             callback_data="prayer_isha"
         )],
         [InlineKeyboardButton(text="Меню", callback_data="back")]
@@ -596,11 +609,14 @@ async def cmd_prayer(m: types.Message):
     
     today = date.today().strftime("%d.%m.%Y")
     completed = sum([status['fajr'], status['dhuhr'], status['asr'], status['maghrib'], status['isha']])
+    streak = status.get("streak", 0)
+    streak_text = f"🔥 Серия: {streak} дн." if streak > 0 else "🔥 Серия: 0 дн."
     
     await m.answer(
-        f"Трекер намазов\n"
+        f"📅 <b>Трекер намазов</b>\n"
         f"Дата: {today}\n"
-        f"Выполнено: {completed}/5\n\n"
+        f"Выполнено: {completed}/5\n"
+        f"{streak_text}\n\n"
         f"Нажми на намаз, чтобы отметить:",
         reply_markup=keyboard
     )
@@ -609,29 +625,54 @@ async def cmd_prayer(m: types.Message):
 async def prayer_callback(cb: types.CallbackQuery):
     prayer_name = cb.data.split("_")[1]
     uid = cb.from_user.id
-    new_status = toggle_prayer(uid, prayer_name)
+    
+    # Переключаем статус намаза
+    toggle_prayer(uid, prayer_name)
     status = get_prayer_status(uid)
+    
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
-            text=f"{'✅' if status['fajr'] else ''} Фаджр",
+            text=f"{'✅' if status['fajr'] else '⬜'} Фаджр",
             callback_data="prayer_fajr"
         )],
         [InlineKeyboardButton(
-            text=f"{'✅' if status['dhuhr'] else ''} Зухр",
+            text=f"{'✅' if status['dhuhr'] else '⬜'} Зухр",
             callback_data="prayer_dhuhr"
         )],
         [InlineKeyboardButton(
-            text=f"{'✅' if status['asr'] else ''} Аср",
+            text=f"{'✅' if status['asr'] else '⬜'} Аср",
             callback_data="prayer_asr"
         )],
         [InlineKeyboardButton(
-            text=f"{'✅' if status['maghrib'] else ''} Магриб",
+            text=f"{'✅' if status['maghrib'] else '⬜'} Магриб",
             callback_data="prayer_maghrib"
         )],
         [InlineKeyboardButton(
-            text=f"{'✅' if status['isha'] else ''} Иша",
+            text=f"{'✅' if status['isha'] else '⬜'} Иша",
             callback_data="prayer_isha"
         )],
+        [InlineKeyboardButton(text="Меню", callback_data="back")]
+    ])
+    
+    completed = sum([status['fajr'], status['dhuhr'], status['asr'], status['maghrib'], status['isha']])
+    streak = status.get("streak", 0)
+    streak_text = f"🔥 Серия: {streak} дн." if streak > 0 else "🔥 Серия: 0 дн."
+    
+    # Поздравление при выполнении всех 5 намазов
+    congrats = "\n\n🎉 <b>МашаАллах! Все 5 намазов выполнены!</b>" if completed == 5 else ""
+    
+    try:
+        await cb.message.edit_text(
+            f"📅 <b>Трекер намазов</b>\n"
+            f"Дата: {date.today().strftime('%d.%m.%Y')}\n"
+            f"Выполнено: {completed}/5\n"
+            f"{streak_text}{congrats}\n\n"
+            f"Нажми на намаз, чтобы отметить:",
+            reply_markup=keyboard
+        )
+        await cb.answer()
+    except:
+        pass
         [InlineKeyboardButton(text="Меню", callback_data="back")]
     ])
     
