@@ -665,22 +665,6 @@ async def prayer_callback(cb: types.CallbackQuery):
         await cb.answer()
     except:
         pass
-        [InlineKeyboardButton(text="Меню", callback_data="back")]
-    ])
-    
-    completed = sum([status['fajr'], status['dhuhr'], status['asr'], status['maghrib'], status['isha']])
-    
-    try:
-        await cb.message.edit_text(
-            f"Трекер намазов\n"
-            f"Дата: {date.today().strftime('%d.%m.%Y')}\n"
-            f"Выполнено: {completed}/5\n\n"
-            f"Нажми на намаз, чтобы отметить:",
-            reply_markup=keyboard
-        )
-        await cb.answer()
-    except:
-        pass
 
 @dp.message(Command("quran_duas"))
 async def cmd_quran_duas(m: types.Message):
