@@ -462,7 +462,7 @@ def get_prayer_status(uid):
         save_json("prayer", data)
     
     return user_data
-
+    
 def toggle_prayer(uid, prayer_name):
     """Переключает статус намаза (True/False) и сохраняет в JSON"""
     data = load_json("prayer", {})
