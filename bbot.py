@@ -605,7 +605,7 @@ async def cmd_prayer(m: types.Message):
     uid = m.from_user.id
     status = get_prayer_status(uid)
     
-   @dp.message(Command("prayer"))
+@dp.message(Command("prayer"))
 async def cmd_prayer(m: types.Message):
     uid = m.from_user.id
     status = get_prayer_status(uid)
