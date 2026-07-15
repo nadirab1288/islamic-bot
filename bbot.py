@@ -591,11 +591,11 @@ async def cmd_prayer(m: types.Message):
     status = get_prayer_status(uid)
     
     # Создаем кнопки с правильным callback_data
-    fajr_emoji = "✅" if status['fajr'] else ""
-    dhuhr_emoji = "✅" if status['dhuhr'] else ""
-    asr_emoji = "✅" if status['asr'] else ""
-    maghrib_emoji = "✅" if status['maghrib'] else ""
-    isha_emoji = "✅" if status['isha'] else ""
+fajr_emoji = "✅" if status['fajr'] else "⬜"
+dhuhr_emoji = "✅" if status['dhuhr'] else "⬜"
+asr_emoji = "✅" if status['asr'] else "⬜"
+maghrib_emoji = "✅" if status['maghrib'] else "⬜"
+isha_emoji = "✅" if status['isha'] else "⬜"
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text=f"{fajr_emoji} Фаджр", callback_data="prayer_fajr")],
