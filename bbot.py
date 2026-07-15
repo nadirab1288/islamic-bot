@@ -463,6 +463,21 @@ def get_prayer_status(uid):
     
     return user_data
 
+def toggle_prayer(uid, prayer_name):
+    """Переключает статус намаза (True/False) и сохраняет в JSON"""
+    data = load_json("prayer", {})
+    user_data = data.get(str(uid), {})
+    
+    # Если ключ есть, меняем на противоположный, если нет - ставим True
+    if prayer_name in user_data:
+        user_data[prayer_name] = not user_data[prayer_name]
+    else:
+        user_data[prayer_name] = True
+        
+    data[str(uid)] = user_data
+    save_json("prayer", data)
+    return user_data[prayer_name]
+
 # Клавиатуры
 MAIN_KB = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="➡️ Следующее"), KeyboardButton(text="🎲 Случайное")],
