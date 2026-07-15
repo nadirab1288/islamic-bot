@@ -590,27 +590,19 @@ async def cmd_prayer(m: types.Message):
     uid = m.from_user.id
     status = get_prayer_status(uid)
     
+    # Создаем кнопки с правильным callback_data
+    fajr_emoji = "✅" if status['fajr'] else ""
+    dhuhr_emoji = "✅" if status['dhuhr'] else ""
+    asr_emoji = "✅" if status['asr'] else ""
+    maghrib_emoji = "✅" if status['maghrib'] else ""
+    isha_emoji = "✅" if status['isha'] else ""
+    
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['fajr'] else '⬜'} Фаджр",
-            callback_data="prayer_fajr"
-        )],
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['dhuhr'] else '⬜'} Зухр",
-            callback_data="prayer_dhuhr"
-        )],
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['asr'] else '⬜'} Аср",
-            callback_data="prayer_asr"
-        )],
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['maghrib'] else '⬜'} Магриб",
-            callback_data="prayer_maghrib"
-        )],
-        [InlineKeyboardButton(
-            text=f"{'✅' if status['isha'] else '⬜'} Иша",
-            callback_data="prayer_isha"
-        )],
+        [InlineKeyboardButton(text=f"{fajr_emoji} Фаджр", callback_data="prayer_fajr")],
+        [InlineKeyboardButton(text=f"{dhuhr_emoji} Зухр", callback_data="prayer_dhuhr")],
+        [InlineKeyboardButton(text=f"{asr_emoji} Аср", callback_data="prayer_asr")],
+        [InlineKeyboardButton(text=f"{maghrib_emoji} Магриб", callback_data="prayer_maghrib")],
+        [InlineKeyboardButton(text=f"{isha_emoji} Иша", callback_data="prayer_isha")],
         [InlineKeyboardButton(text="Меню", callback_data="back")]
     ])
     
